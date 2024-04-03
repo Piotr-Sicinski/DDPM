@@ -6,6 +6,7 @@ import wandb
 from torch.utils.data import DataLoader
 from torchvision import datasets
 import script_utils
+from collections import deque
 
 
 def main():
@@ -35,15 +36,15 @@ def main():
 
         batch_size = args.batch_size
 
-        train_dataset = datasets.CIFAR10(
-            root='./cifar_train',
+        train_dataset = datasets.FashionMNIST(
+            root='./fmnist_train',
             train=True,
             download=True,
             transform=script_utils.get_transform(),
         )
 
-        test_dataset = datasets.CIFAR10(
-            root='./cifar_test',
+        test_dataset = datasets.FashionMNIST(
+            root='./fmnist_test',
             train=False,
             download=True,
             transform=script_utils.get_transform(),
@@ -59,10 +60,11 @@ def main():
         test_loader = DataLoader(test_dataset, batch_size=batch_size, drop_last=True, num_workers=2)
 
         acc_train_loss = 0
+        epoch_losses = deque(maxlen=20)
 
         for iteration in range(1, args.iterations + 1):
-            # if iteration % 1000 == 0:
-            print(f"Iteration {iteration}")
+            if iteration % 10000 == 0:
+                print(f"Iteration {iteration}")
 
             diffusion.train()
 
@@ -107,6 +109,11 @@ def main():
 
                 test_loss /= len(test_loader)
                 acc_train_loss /= args.log_rate
+
+                # early stopping
+                epoch_losses.append(test_loss)
+                if len(epoch_losses) == 20 and epoch_losses[0] < min(epoch_losses[1:]):
+                    break
 
                 wandb.log({
                     "test_loss": test_loss,
