@@ -112,13 +112,23 @@ def get_diffusion_from_args(args):
             args.schedule_high * 1000 / args.num_timesteps,
         )
 
-    diffusion = GaussianDiffusion(
-        model, (32, 32), 3, 10,
-        betas,
-        ema_decay=args.ema_decay,
-        ema_update_rate=args.ema_update_rate,
-        ema_start=2000,
-        loss_type=args.loss_type,
-    )
+    if args.dataset == 'fmnist':
+        diffusion = GaussianDiffusion(
+            model, (28, 28), 1, 10,
+            betas,
+            ema_decay=args.ema_decay,
+            ema_update_rate=args.ema_update_rate,
+            ema_start=2000,
+            loss_type=args.loss_type,
+        )
+    else:
+        diffusion = GaussianDiffusion(
+            model, (32, 32), 3, 10,
+            betas,
+            ema_decay=args.ema_decay,
+            ema_update_rate=args.ema_update_rate,
+            ema_start=2000,
+            loss_type=args.loss_type,
+        )
 
     return diffusion

@@ -63,8 +63,9 @@ def main():
         epoch_losses = deque(maxlen=20)
 
         for iteration in range(1, args.iterations + 1):
-            if iteration % 10000 == 0:
+            if iteration % 1000 == 1:
                 print(f"Iteration {iteration}")
+                print(f"Epoch losse: {epoch_losses[-1] if epoch_losses else None}")
 
             diffusion.train()
 
@@ -160,6 +161,8 @@ def create_argparser():
         schedule_high=0.02,
 
         device=device,
+
+        dataset='fmnist',
     )
     defaults.update(script_utils.diffusion_defaults())
 
